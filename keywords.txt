@@ -1,0 +1,27 @@
+#######################################
+# Syntax Coloring Map For MyRotaryEncoder
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+MyRotaryEncoder	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+IsHolded	KEYWORD2
+AttachOnClick	KEYWORD2
+AttachOnRightTurn	KEYWORD2
+AttachOnLeftTurn	KEYWORD2
+AttachOnRightHoldTurn	KEYWORD2
+AttachOnLeftHoldTurn	KEYWORD2
+SetEncoderType	KEYWORD2
+SetEncoderDirection	KEYWORD2
+Tick	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+

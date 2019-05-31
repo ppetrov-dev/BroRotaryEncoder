@@ -1,0 +1,27 @@
+{
+  "name": "MyRotaryEncoder",
+  "keywords": "rotary encoder",
+  "description": "Useful Arduino Library to use rotary encoders in C# style",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/ppetrov-dev/MyRotaryEncoder.git"
+  },
+  "authors": 
+  [
+    {
+      "name": "Pavel Petrov",
+      "email": "ppetrov-dev@hotmail.com",
+      "url": "http://www.ppetrov.dev",
+      "maintainer": true
+    }
+  ],
+  "dependencies":
+  {
+    "name": "Arduino",
+    "frameworks": "arduino"
+  },
+  "version": "1.0.0",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
