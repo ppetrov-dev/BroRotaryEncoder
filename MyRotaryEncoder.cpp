@@ -50,43 +50,33 @@ unsigned char MyRotaryEncoder::ReadTwisterState()
 }
 bool MyRotaryEncoder::WasLeftTurn()
 {
-	if (_currentTwisterState == MyRotaryEncoderState::LeftTurn)
-	{
-		_currentTwisterState = MyRotaryEncoderState::Normal;
-		return true;
-	}
-	else
+	if (_currentTwisterState != MyRotaryEncoderState::LeftTurn)
 		return false;
+
+	_currentTwisterState = MyRotaryEncoderState::Normal;
+	return true;
 }
 bool MyRotaryEncoder::WasRightTurn()
 {
-	if (_currentTwisterState == MyRotaryEncoderState::RightTurn)
-	{
-		_currentTwisterState = MyRotaryEncoderState::Normal;
-		return true;
-	}
-	else
+	if (_currentTwisterState != MyRotaryEncoderState::RightTurn)
 		return false;
+
+	_currentTwisterState = MyRotaryEncoderState::Normal;
+	return true;
 }
 bool MyRotaryEncoder::WasLeftHoldTurn()
 {
-	if (_currentTwisterState == MyRotaryEncoderState::LeftHoldTurn)
-	{
-		_currentTwisterState = MyRotaryEncoderState::Normal;
-		return true;
-	}
-	else
+	if (_currentTwisterState != MyRotaryEncoderState::LeftHoldTurn)
 		return false;
+	_currentTwisterState = MyRotaryEncoderState::Normal;
+	return true;
 }
 bool MyRotaryEncoder::WasRightHoldTurn()
 {
-	if (_currentTwisterState == MyRotaryEncoderState::RightHoldTurn)
-	{
-		_currentTwisterState = MyRotaryEncoderState::Normal;
-		return true;
-	}
-	else
+	if (_currentTwisterState != MyRotaryEncoderState::RightHoldTurn)
 		return false;
+	_currentTwisterState = MyRotaryEncoderState::Normal;
+	return true;
 }
 bool MyRotaryEncoder::WasHolded()
 {
@@ -95,35 +85,27 @@ bool MyRotaryEncoder::WasHolded()
 		_flags.isHolded_f = false;
 		return true;
 	}
-	else
-		return false;
+	return false;
 }
 bool MyRotaryEncoder::WasSingleClicked()
 {
-	if (_flags.isSingle_f)
-	{
-		_flags.isSingle_f = false;
-		_flags.isDouble_f = false;
-		return true;
-	}
-	else
+	if (!_flags.isSingle_f)
 		return false;
+	_flags.isSingle_f = false;
+	_flags.isDouble_f = false;
+	return true;
 }
 bool MyRotaryEncoder::WasDoubleClicked()
 {
-	if (_flags.isDouble_f)
-	{
-		_flags.isDouble_f = false;
-		_flags.isSingle_f = false;
-		return true;
-	}
-	else
+	if (!_flags.isDouble_f)
 		return false;
+	_flags.isDouble_f = false;
+	_flags.isSingle_f = false;
+	return true;
 }
 void MyRotaryEncoder::ObserveButtonEvents(unsigned long &currentMillis)
 {
-	uint32_t debounceDelta = currentMillis - _lastTimestampInMilliseconds;
-
+	auto debounceDelta = currentMillis - _lastTimestampInMilliseconds;
 	_wasButtonPressed = !digitalRead(_pinSw);
 
 	if (_wasButtonPressed && !_flags.butt_flag && (debounceDelta > ButtonDebounceInMilliseconds))
@@ -180,7 +162,6 @@ void MyRotaryEncoder::ObserveButtonEvents(unsigned long &currentMillis)
 			_flags.butt_flag = false;
 			_flags.hold_flag = false;
 			_lastTimestampInMilliseconds = currentMillis;
-			debounceDelta = 0;
 		}
 	}
 }
