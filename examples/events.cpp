@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#include "MyRotaryEncoder.h"
+#include "BroRotaryEncoder.h"
 
 #define PIN_EncoderClk 3
 #define PIN_EncoderDt 2
 #define PIN_EncoderSw 4
 
-MyRotaryEncoder _encoder = MyRotaryEncoder(PIN_EncoderClk, PIN_EncoderDt, PIN_EncoderSw);
+BroRotaryEncoder _encoder = BroRotaryEncoder(PIN_EncoderClk, PIN_EncoderDt, PIN_EncoderSw);
 
 void OnClickHandler()
 {

@@ -1,6 +1,6 @@
-#include "MyRotaryEncoder.h"
+#include "BroRotaryEncoder.h"
 
-MyRotaryEncoder::MyRotaryEncoder(byte pinClk, byte pinDt, byte pinSw)
+BroRotaryEncoder::BroRotaryEncoder(byte pinClk, byte pinDt, byte pinSw)
 	: _pinClk(pinClk), _pinDt(pinDt), _pinSw(pinSw)
 {
 	pinMode(_pinClk, INPUT);
@@ -8,77 +8,77 @@ MyRotaryEncoder::MyRotaryEncoder(byte pinClk, byte pinDt, byte pinSw)
 	pinMode(_pinSw, INPUT_PULLUP);
 }
 
-void MyRotaryEncoder::AttachOnLeftTurn(callback newFunction)
+void BroRotaryEncoder::AttachOnLeftTurn(callback newFunction)
 {
 	_onLeftTurnCallbackFunc = newFunction;
 }
 
-void MyRotaryEncoder::AttachOnRightTurn(callback newFunction)
+void BroRotaryEncoder::AttachOnRightTurn(callback newFunction)
 {
 	_onRightTurnCallbackFunc = newFunction;
 }
 
-void MyRotaryEncoder::AttachOnLeftHoldTurn(callback newFunction)
+void BroRotaryEncoder::AttachOnLeftHoldTurn(callback newFunction)
 {
 	_onLeftHoldTurnCallbackFunc = newFunction;
 }
 
-void MyRotaryEncoder::AttachOnRightHoldTurn(callback newFunction)
+void BroRotaryEncoder::AttachOnRightHoldTurn(callback newFunction)
 {
 	_onRightHoldTurnCallbackFunc = newFunction;
 }
-void MyRotaryEncoder::AttachOnClick(callback newFunction)
+void BroRotaryEncoder::AttachOnClick(callback newFunction)
 {
 	_onClickCallbackFunc = newFunction;
 }
-void MyRotaryEncoder::AttachOnDoubleClick(callback newFunction)
+void BroRotaryEncoder::AttachOnDoubleClick(callback newFunction)
 {
 	_onDoubleClickCallbackFunc = newFunction;
 }
-void MyRotaryEncoder::AttachOnPressStart(callback newFunction)
+void BroRotaryEncoder::AttachOnPressStart(callback newFunction)
 {
 	_onPressStartCallbackFunc = newFunction;
 }
-void MyRotaryEncoder::AttachOnPressStop(callback newFunction)
+void BroRotaryEncoder::AttachOnPressStop(callback newFunction)
 {
 	_onPressStopCallbackFunc = newFunction;
 }
 
-unsigned char MyRotaryEncoder::ReadTwisterState()
+unsigned char BroRotaryEncoder::ReadTwisterState()
 {
 	return digitalRead(_pinClk) | (digitalRead(_pinDt) << 1);
 }
-bool MyRotaryEncoder::WasLeftTurn()
+bool BroRotaryEncoder::WasLeftTurn()
 {
-	if (_currentTwisterState != MyRotaryEncoderState::LeftTurn)
+	if (_currentTwisterState != BroRotaryEncoderState::LeftTurn)
 		return false;
 
-	_currentTwisterState = MyRotaryEncoderState::Normal;
+	_currentTwisterState = BroRotaryEncoderState::Normal;
 	return true;
 }
-bool MyRotaryEncoder::WasRightTurn()
+bool BroRotaryEncoder::WasRightTurn()
 {
-	if (_currentTwisterState != MyRotaryEncoderState::RightTurn)
+	if (_currentTwisterState != BroRotaryEncoderState::RightTurn)
 		return false;
 
-	_currentTwisterState = MyRotaryEncoderState::Normal;
+	_currentTwisterState = BroRotaryEncoderState::Normal;
 	return true;
 }
-bool MyRotaryEncoder::WasLeftHoldTurn()
+bool BroRotaryEncoder::WasLeftHoldTurn()
 {
-	if (_currentTwisterState != MyRotaryEncoderState::LeftHoldTurn)
+	if (_currentTwisterState != BroRotaryEncoderState::LeftHoldTurn)
 		return false;
-	_currentTwisterState = MyRotaryEncoderState::Normal;
+	_currentTwisterState = BroRotaryEncoderState::Normal;
 	return true;
 }
-bool MyRotaryEncoder::WasRightHoldTurn()
+bool BroRotaryEncoder::WasRightHoldTurn()
 {
-	if (_currentTwisterState != MyRotaryEncoderState::RightHoldTurn)
+	if (_currentTwisterState != BroRotaryEncoderState::RightHoldTurn)
 		return false;
-	_currentTwisterState = MyRotaryEncoderState::Normal;
+	_currentTwisterState = BroRotaryEncoderState::Normal;
 	return true;
 }
-bool MyRotaryEncoder::WasHolded()
+bool BroRotaryEncoder::WasHolded()
 {
 	if (_flags.hold_flag && _flags.isHolded_f)
 	{
@@ -87,7 +87,7 @@ bool MyRotaryEncoder::WasHolded()
 	}
 	return false;
 }
-bool MyRotaryEncoder::WasSingleClicked()
+bool BroRotaryEncoder::WasSingleClicked()
 {
 	if (!_flags.isSingle_f)
 		return false;
@@ -95,7 +95,7 @@ bool MyRotaryEncoder::WasSingleClicked()
 	_flags.isDouble_f = false;
 	return true;
 }
-bool MyRotaryEncoder::WasDoubleClicked()
+bool BroRotaryEncoder::WasDoubleClicked()
 {
 	if (!_flags.isDouble_f)
 		return false;
@@ -103,7 +103,7 @@ bool MyRotaryEncoder::WasDoubleClicked()
 	_flags.isSingle_f = false;
 	return true;
 }
-void MyRotaryEncoder::ObserveButtonEvents(unsigned long &currentMillis)
+void BroRotaryEncoder::ObserveButtonEvents(unsigned long &currentMillis)
 {
 	auto debounceDelta = currentMillis - _lastTimestampInMilliseconds;
 	_wasButtonPressed = !digitalRead(_pinSw);
@@ -165,19 +165,19 @@ void MyRotaryEncoder::ObserveButtonEvents(unsigned long &currentMillis)
 		}
 	}
 }
-void MyRotaryEncoder::ObserveTwisterEvents(unsigned long &currentMillis)
+void BroRotaryEncoder::ObserveTwisterEvents(unsigned long &currentMillis)
 {
 	uint8_t state = ReadTwisterState();
 
 	if (state != _previosTwisterState)
 	{
-		_currentTwisterState = MyRotaryEncoderState::Normal;
+		_currentTwisterState = BroRotaryEncoderState::Normal;
 		if (_flags.rst_flag)
 		{
 			if (state == 3)
 			{
 				_flags.rst_flag = 0;
-				_currentTwisterState = (MyRotaryEncoderState)(3 - _previosTwisterState);
+				_currentTwisterState = (BroRotaryEncoderState)(3 - _previosTwisterState);
 			}
 			else if (state == 0)
 			{
@@ -190,18 +190,18 @@ void MyRotaryEncoder::ObserveTwisterEvents(unsigned long &currentMillis)
 			_flags.rst_flag = 1;
 		}
 
-		if (_currentTwisterState != MyRotaryEncoderState::Normal)
+		if (_currentTwisterState != BroRotaryEncoderState::Normal)
 		{
 			_flags.isTurn_f = true;
 			if (_wasButtonPressed)
-				_currentTwisterState = (MyRotaryEncoderState)(_currentTwisterState + MyRotaryEncoderState::RightTurn);
+				_currentTwisterState = (BroRotaryEncoderState)(_currentTwisterState + BroRotaryEncoderState::RightTurn);
 		}
-		_previosTwisterState = (MyRotaryEncoderState)state;
+		_previosTwisterState = (BroRotaryEncoderState)state;
 		_flags.turn_flag = true;
 		_lastTimestampInMilliseconds = currentMillis;
 	}
 }
-void MyRotaryEncoder::Tick()
+void BroRotaryEncoder::Tick()
 {
 	auto currentMillis = millis();
 

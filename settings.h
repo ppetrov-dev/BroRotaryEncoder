@@ -1,5 +1,5 @@
-#ifndef myRotaryEncoderSettingsH
-#define myRotaryEncoderSettingsH
+#ifndef broRotaryEncoderSettingsH
+#define broRotaryEncoderSettingsH
 
 extern "C"
 {
@@ -29,7 +29,7 @@ typedef struct
 } Flags;
 #pragma pack(pop)
 
-enum MyRotaryEncoderState
+enum BroRotaryEncoderState
 {
     Normal = 0,
     LeftTurn = 1,
@@ -38,4 +38,4 @@ enum MyRotaryEncoderState
     RightHoldTurn = 4,
 };
 
-#endif //myRotaryEncoderSettingsH
+#endif //broRotaryEncoderSettingsH

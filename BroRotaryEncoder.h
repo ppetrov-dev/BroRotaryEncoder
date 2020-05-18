@@ -1,9 +1,10 @@
-#ifndef myRotaryEncoderH
-#define myRotaryEncoderH
+#ifndef broRotaryEncoderH
+#define broRotaryEncoderH
+
 #include <Arduino.h>
 #include "settings.h"
 
-class MyRotaryEncoder
+class BroRotaryEncoder
 {
 private:
 	bool _wasHoldStarted = false;
@@ -19,8 +20,8 @@ private:
 	byte _pinClk, _pinDt, _pinSw;
 	bool _wasButtonPressed = false;
 	Flags _flags;
-	MyRotaryEncoderState _previosTwisterState = MyRotaryEncoderState::Normal;
-	MyRotaryEncoderState _currentTwisterState = MyRotaryEncoderState::Normal;
+	BroRotaryEncoderState _previosTwisterState = BroRotaryEncoderState::Normal;
+	BroRotaryEncoderState _currentTwisterState = BroRotaryEncoderState::Normal;
 	unsigned long _lastTimestampInMilliseconds = 0;
 
 	bool WasRightTurn();
@@ -35,7 +36,7 @@ private:
 	void ObserveTwisterEvents(unsigned long &currentMillis);
 
 public:
-	MyRotaryEncoder(byte pinClk, byte pinDt, byte pinSw);
+	BroRotaryEncoder(byte pinClk, byte pinDt, byte pinSw);
 	void Tick(void);
 	void AttachOnClick(callback newFunction);
 	void AttachOnDoubleClick(callback newFunction);
@@ -46,4 +47,4 @@ public:
 	void AttachOnRightHoldTurn(callback newFunction);
 	void AttachOnLeftHoldTurn(callback newFunction);
 };
-#endif
+#endif //broRotaryEncoderH

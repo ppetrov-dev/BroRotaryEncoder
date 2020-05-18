@@ -1,11 +1,11 @@
 {
-  "name": "MyRotaryEncoder",
+  "name": "BroRotaryEncoder",
   "keywords": "rotary encoder",
   "description": "Useful Arduino Library to use rotary encoders in C# style",
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/ppetrov-dev/MyRotaryEncoder.git"
+    "url": "https://github.com/ppetrov-dev/BroRotaryEncoder.git"
   },
   "authors": 
   [
