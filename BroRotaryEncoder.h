@@ -1,50 +1,52 @@
 #ifndef broRotaryEncoderH
 #define broRotaryEncoderH
 
-#include <Arduino.h>
+#include "BroSimpleRotaryEncoder.h"
 #include "settings.h"
 
-class BroRotaryEncoder
+class BroRotaryEncoder : public BroSimpleRotaryEncoder
 {
 private:
-	bool _wasHoldStarted = false;
-	callback _onRightTurnCallbackFunc = nullptr;
-	callback _onLeftTurnCallbackFunc = nullptr;
-	callback _onRightHoldTurnCallbackFunc = nullptr;
-	callback _onLeftHoldTurnCallbackFunc = nullptr;
-	callback _onClickCallbackFunc = nullptr;
-	callback _onDoubleClickCallbackFunc = nullptr;
-	callback _onPressStartCallbackFunc = nullptr;
-	callback _onPressStopCallbackFunc = nullptr;
+	unsigned long _clickTicks = 500;  // number of ticks that have to pass by
+									  // before a click is detected.
+	unsigned long _pressTicks = 1000; // number of ticks that have to pass by
+									  // before a long button press is detected
+	unsigned long _debounceTicks = 50; // number of ticks for debounce times.
 
-	byte _pinClk, _pinDt, _pinSw;
-	bool _wasButtonPressed = false;
-	Flags _flags;
-	BroRotaryEncoderState _previosTwisterState = BroRotaryEncoderState::Normal;
-	BroRotaryEncoderState _currentTwisterState = BroRotaryEncoderState::Normal;
-	unsigned long _lastTimestampInMilliseconds = 0;
+	byte _pinSw;
+	int _buttonPressedValue;
 
-	bool WasRightTurn();
-	bool WasLeftTurn();
-	bool WasRightHoldTurn();
-	bool WasLeftHoldTurn();
-	bool WasHolded();
-	bool WasSingleClicked();
-	bool WasDoubleClicked();
-	unsigned char ReadTwisterState();
-	void ObserveButtonEvents(unsigned long &currentMillis);
-	void ObserveTwisterEvents(unsigned long &currentMillis);
+	BroEncoderButtonState _buttonState = BroEncoderButtonState::Normal;
+	unsigned long _startTime; 
+	unsigned long _stopTime; 
 
-public:
+	void (*_onRightHoldTurnCallbackFunc)() = nullptr;
+	void (*_onLeftHoldTurnCallbackFunc)() = nullptr;
+	void (*_onClickCallbackFunc)() = nullptr;
+	void (*_onDoubleClickCallbackFunc)() = nullptr;
+	void (*_onLongPressStartCallbackFunc)() = nullptr;
+	void (*_onLongPressStopCallbackFunc)() = nullptr;
+	void SetButtonState(const bool& isButtonPressed);
+	void RaiseButtonsEvents(void);
+	void RaiseTwisterEvents(const bool &isButtonPressed);
+	void RaiseLeftHoldTurnIfNotNull(void);
+	void RaiseRightHoldTurnIfNotNull(void);
+
+public : BroRotaryEncoder(byte pinClk, byte pinDt, byte pinSw, bool isActiveLow, bool isPullupActive);
 	BroRotaryEncoder(byte pinClk, byte pinDt, byte pinSw);
 	void Tick(void);
-	void AttachOnClick(callback newFunction);
-	void AttachOnDoubleClick(callback newFunction);
-	void AttachOnPressStart(callback newFunction);
-	void AttachOnPressStop(callback newFunction);
-	void AttachOnRightTurn(callback newFunction);
-	void AttachOnLeftTurn(callback newFunction);
-	void AttachOnRightHoldTurn(callback newFunction);
-	void AttachOnLeftHoldTurn(callback newFunction);
+	void AttachOnClick(void (*newFunction)());
+	void AttachOnDoubleClick(void (*newFunction)());
+	void AttachOnLongPressStart(void (*newFunction)());
+	void AttachOnLongPressStop(void (*newFunction)());
+	void AttachOnRightHoldTurn(void (*newFunction)());
+	void AttachOnLeftHoldTurn(void (*newFunction)());
+
+	void SetDebounceTicks(unsigned long milliseconds);
+	void SetClickTicks(unsigned long milliseconds);
+	void SetPressTicks(unsigned long milliseconds);
+
+	int GetLastPressedTicks();
+	void Reset(void);
 };
 #endif //broRotaryEncoderH

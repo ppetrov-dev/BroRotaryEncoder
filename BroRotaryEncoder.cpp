@@ -1,240 +1,195 @@
 #include "BroRotaryEncoder.h"
 
+BroRotaryEncoder::BroRotaryEncoder(byte pinClk, byte pinDt, byte pinSw, bool isActiveLow, bool isPullupActive)
+	: BroSimpleRotaryEncoder(pinClk, pinDt), _pinSw(pinSw)
+{
+	_buttonPressedValue = isActiveLow ? LOW : HIGH;
+
+	if (isPullupActive)
+		pinMode(_pinSw, INPUT_PULLUP);
+	else
+		pinMode(_pinSw, INPUT);
+}
 BroRotaryEncoder::BroRotaryEncoder(byte pinClk, byte pinDt, byte pinSw)
-	: _pinClk(pinClk), _pinDt(pinDt), _pinSw(pinSw)
+	: BroRotaryEncoder(pinClk, pinDt, pinSw, true, true)
 {
-	pinMode(_pinClk, INPUT);
-	pinMode(_pinDt, INPUT);
-	pinMode(_pinSw, INPUT_PULLUP);
 }
-
-void BroRotaryEncoder::AttachOnLeftTurn(callback newFunction)
+void BroRotaryEncoder::SetDebounceTicks(unsigned long milliseconds)
 {
-	_onLeftTurnCallbackFunc = newFunction;
+	_debounceTicks = milliseconds;
 }
-
-void BroRotaryEncoder::AttachOnRightTurn(callback newFunction)
+void BroRotaryEncoder::SetClickTicks(unsigned long milliseconds)
 {
-	_onRightTurnCallbackFunc = newFunction;
+	_clickTicks = milliseconds;
 }
-
-void BroRotaryEncoder::AttachOnLeftHoldTurn(callback newFunction)
+void BroRotaryEncoder::SetPressTicks(unsigned long milliseconds)
+{
+	_pressTicks = milliseconds;
+}
+void BroRotaryEncoder::AttachOnLeftHoldTurn(void (*newFunction)())
 {
 	_onLeftHoldTurnCallbackFunc = newFunction;
 }
-
-void BroRotaryEncoder::AttachOnRightHoldTurn(callback newFunction)
+void BroRotaryEncoder::AttachOnRightHoldTurn(void (*newFunction)())
 {
 	_onRightHoldTurnCallbackFunc = newFunction;
 }
-void BroRotaryEncoder::AttachOnClick(callback newFunction)
+void BroRotaryEncoder::AttachOnClick(void (*newFunction)())
 {
 	_onClickCallbackFunc = newFunction;
 }
-void BroRotaryEncoder::AttachOnDoubleClick(callback newFunction)
+void BroRotaryEncoder::AttachOnDoubleClick(void (*newFunction)())
 {
 	_onDoubleClickCallbackFunc = newFunction;
 }
-void BroRotaryEncoder::AttachOnPressStart(callback newFunction)
+void BroRotaryEncoder::AttachOnLongPressStart(void (*newFunction)())
 {
-	_onPressStartCallbackFunc = newFunction;
+	_onLongPressStartCallbackFunc = newFunction;
 }
-void BroRotaryEncoder::AttachOnPressStop(callback newFunction)
+void BroRotaryEncoder::AttachOnLongPressStop(void (*newFunction)())
 {
-	_onPressStopCallbackFunc = newFunction;
+	_onLongPressStopCallbackFunc = newFunction;
 }
+void BroRotaryEncoder::Reset()
+{
+	_buttonState = BroEncoderButtonState::Normal;
+	_startTime = 0;
+	_stopTime = 0;
+}
+int BroRotaryEncoder::GetLastPressedTicks()
+{
+	return _stopTime - _startTime;
+}
+void BroRotaryEncoder::RaiseLeftHoldTurnIfNotNull(void)
+{
+	if (_onLeftHoldTurnCallbackFunc != nullptr)
+		_onLeftHoldTurnCallbackFunc();
+}
+void BroRotaryEncoder::RaiseRightHoldTurnIfNotNull(void)
+{
+	if (_onRightHoldTurnCallbackFunc != nullptr)
+		_onRightHoldTurnCallbackFunc();
+}
+void BroRotaryEncoder::SetButtonState(const bool &isButtonPressed)
+{
+	unsigned long currenMillis = millis();
 
-unsigned char BroRotaryEncoder::ReadTwisterState()
-{
-	return digitalRead(_pinClk) | (digitalRead(_pinDt) << 1);
-}
-bool BroRotaryEncoder::WasLeftTurn()
-{
-	if (_currentTwisterState != BroRotaryEncoderState::LeftTurn)
-		return false;
-
-	_currentTwisterState = BroRotaryEncoderState::Normal;
-	return true;
-}
-bool BroRotaryEncoder::WasRightTurn()
-{
-	if (_currentTwisterState != BroRotaryEncoderState::RightTurn)
-		return false;
-
-	_currentTwisterState = BroRotaryEncoderState::Normal;
-	return true;
-}
-bool BroRotaryEncoder::WasLeftHoldTurn()
-{
-	if (_currentTwisterState != BroRotaryEncoderState::LeftHoldTurn)
-		return false;
-	_currentTwisterState = BroRotaryEncoderState::Normal;
-	return true;
-}
-bool BroRotaryEncoder::WasRightHoldTurn()
-{
-	if (_currentTwisterState != BroRotaryEncoderState::RightHoldTurn)
-		return false;
-	_currentTwisterState = BroRotaryEncoderState::Normal;
-	return true;
-}
-bool BroRotaryEncoder::WasHolded()
-{
-	if (_flags.hold_flag && _flags.isHolded_f)
+	if (_buttonState == BroEncoderButtonState::Normal && isButtonPressed)
 	{
-		_flags.isHolded_f = false;
-		return true;
+		_buttonState = BroEncoderButtonState::SingleClickCandidateState;
+		_startTime = currenMillis;
+		return;
 	}
-	return false;
-}
-bool BroRotaryEncoder::WasSingleClicked()
-{
-	if (!_flags.isSingle_f)
-		return false;
-	_flags.isSingle_f = false;
-	_flags.isDouble_f = false;
-	return true;
-}
-bool BroRotaryEncoder::WasDoubleClicked()
-{
-	if (!_flags.isDouble_f)
-		return false;
-	_flags.isDouble_f = false;
-	_flags.isSingle_f = false;
-	return true;
-}
-void BroRotaryEncoder::ObserveButtonEvents(unsigned long &currentMillis)
-{
-	auto debounceDelta = currentMillis - _lastTimestampInMilliseconds;
-	_wasButtonPressed = !digitalRead(_pinSw);
 
-	if (_wasButtonPressed && !_flags.butt_flag && (debounceDelta > ButtonDebounceInMilliseconds))
+	if (_buttonState == BroEncoderButtonState::SingleClickCandidateState)
 	{
-		_flags.butt_flag = true;
-		_flags.turn_flag = false;
-		_lastTimestampInMilliseconds = currentMillis;
-		debounceDelta = 0;
-		_flags.isPress_f = true;
-		_flags.isHolded_f = true;
-		_flags.doubleAllow = true;
-	}
-	if (!_wasButtonPressed && _flags.butt_flag && (debounceDelta > ButtonDebounceInMilliseconds))
-	{
-		if (!_flags.turn_flag && !_flags.hold_flag)
+		if (!isButtonPressed && (currenMillis - _startTime) < _debounceTicks)
+			_buttonState = BroEncoderButtonState::Normal;
+		else if (!isButtonPressed)
 		{
-			_flags.turn_flag = false;
-			_flags.isRelease_f = true;
+			_buttonState = BroEncoderButtonState::SingleClickState;
+			_stopTime = currenMillis;
 		}
-		_flags.butt_flag = false;
-		_lastTimestampInMilliseconds = currentMillis;
-		debounceDelta = 0;
-		_flags.hold_flag = false;
+		else if (isButtonPressed && (currenMillis - _startTime) > _pressTicks)
+		{
+			_stopTime = currenMillis;
+			_buttonState = BroEncoderButtonState::LongPressCandidateState;
+		}
+		return;
+	}
 
-		if (_flags.doubleAllow && !_flags.doubleFlag)
-		{
-			_flags.doubleFlag = true;
-			_flags.countFlag = false;
-		}
-		else
-			_flags.countFlag = true;
-	}
-	if (_flags.doubleFlag && debounceDelta > ButtonDoubleClickTimeoutInMilliseconds)
+	if (_buttonState == BroEncoderButtonState::SingleClickState)
 	{
-		if (!_flags.turn_flag)
+		if ((_onDoubleClickCallbackFunc == nullptr) || currenMillis - _startTime > _clickTicks)
+			_buttonState = BroEncoderButtonState::SingleClickedState;
+		else if (isButtonPressed && currenMillis - _stopTime > _debounceTicks)
 		{
-			if (!_flags.countFlag)
-				_flags.isSingle_f = true;
-			else
-				_flags.isDouble_f = true;
+			_buttonState = BroEncoderButtonState::DoubleClickCandidateState;
+			_startTime = currenMillis;
 		}
-		_flags.doubleFlag = false;
+		return;
 	}
-	if (_flags.butt_flag && debounceDelta > ButtonHoldTimeoutInMilliseconds && !_flags.turn_flag)
+
+	if (_buttonState == BroEncoderButtonState::DoubleClickCandidateState && currenMillis - _startTime > _debounceTicks)
 	{
-		if (_wasButtonPressed)
-		{
-			_flags.hold_flag = true;
-			_flags.isRelease_f = false;
-			_flags.doubleAllow = false;
-		}
-		else
-		{
-			_flags.butt_flag = false;
-			_flags.hold_flag = false;
-			_lastTimestampInMilliseconds = currentMillis;
-		}
+		_stopTime = currenMillis;
+		_startTime = currenMillis;
+		_buttonState = BroEncoderButtonState::DoubleClickingState;
+		return;
+	}
+
+	if (_buttonState == BroEncoderButtonState::DoubleClickedState)
+	{
+		if (isButtonPressed && currenMillis - _startTime > _pressTicks)
+			_buttonState = BroEncoderButtonState::LongPressCandidateState;
+		else if (!isButtonPressed)
+			_buttonState = BroEncoderButtonState::Normal;
+		return;
+	}
+
+	if (_buttonState == BroEncoderButtonState::LongPressStartedState && !isButtonPressed)
+	{
+		_stopTime = currenMillis;
+		_buttonState = BroEncoderButtonState::LongPressStoppedState;
+		return;
 	}
 }
-void BroRotaryEncoder::ObserveTwisterEvents(unsigned long &currentMillis)
+void BroRotaryEncoder::RaiseButtonsEvents(void)
 {
-	uint8_t state = ReadTwisterState();
-
-	if (state != _previosTwisterState)
+	switch (_buttonState)
 	{
-		_currentTwisterState = BroRotaryEncoderState::Normal;
-		if (_flags.rst_flag)
-		{
-			if (state == 3)
-			{
-				_flags.rst_flag = 0;
-				_currentTwisterState = (BroRotaryEncoderState)(3 - _previosTwisterState);
-			}
-			else if (state == 0)
-			{
-				_flags.rst_flag = 0;
-				_currentTwisterState = _previosTwisterState;
-			}
-		}
-		if (state == 0)
-		{
-			_flags.rst_flag = 1;
-		}
-
-		if (_currentTwisterState != BroRotaryEncoderState::Normal)
-		{
-			_flags.isTurn_f = true;
-			if (_wasButtonPressed)
-				_currentTwisterState = (BroRotaryEncoderState)(_currentTwisterState + BroRotaryEncoderState::RightTurn);
-		}
-		_previosTwisterState = (BroRotaryEncoderState)state;
-		_flags.turn_flag = true;
-		_lastTimestampInMilliseconds = currentMillis;
+	case LongPressCandidateState:
+		if (_onLongPressStartCallbackFunc != nullptr)
+			_onLongPressStartCallbackFunc();
+		_buttonState = BroEncoderButtonState::LongPressStartedState;
+		break;
+	case SingleClickedState:
+		if (_onClickCallbackFunc != nullptr)
+			_onClickCallbackFunc();
+		_buttonState = BroEncoderButtonState::Normal;
+		break;
+	case DoubleClickingState:
+		if (_onDoubleClickCallbackFunc != nullptr)
+			_onDoubleClickCallbackFunc();
+		_buttonState = BroEncoderButtonState::DoubleClickedState;
+		break;
+	case LongPressStoppedState:
+		if (_onLongPressStopCallbackFunc != nullptr)
+			_onLongPressStopCallbackFunc();
+		_buttonState = BroEncoderButtonState::Normal;
+		break;
+	default:
+		break;
 	}
+}
+void BroRotaryEncoder::RaiseTwisterEvents(const bool &isButtonPressed)
+{
+	if (isButtonPressed)
+	{
+		if (_broSequenceCombiner.IsLeftTurn())
+			RaiseLeftHoldTurnIfNotNull();
+		else if (_broSequenceCombiner.IsRightTurn())
+			RaiseRightHoldTurnIfNotNull();
+	}
+	else
+	{
+		if (_broSequenceCombiner.IsLeftTurn())
+			RaiseLeftTurnIfNotNull();
+		else if (_broSequenceCombiner.IsRightTurn())
+			RaiseRightTurnIfNotNull();
+	}
+	_broSequenceCombiner.Reset();
 }
 void BroRotaryEncoder::Tick()
 {
-	auto currentMillis = millis();
+	auto isButtonPressed = digitalRead(_pinSw) == _buttonPressedValue;
+	SetButtonState(isButtonPressed);
 
-	ObserveButtonEvents(currentMillis);
-	ObserveTwisterEvents(currentMillis);
+	auto twisterState = BroSimpleRotaryEncoder::ReadState();
+	_broSequenceCombiner.EnqueueIfNeeded(twisterState);
 
-	if (WasRightTurn() && _onRightTurnCallbackFunc != nullptr)
-		_onRightTurnCallbackFunc();
-
-	if (WasLeftTurn() && _onLeftTurnCallbackFunc != nullptr)
-		_onLeftTurnCallbackFunc();
-
-	if (WasRightHoldTurn() && _onRightHoldTurnCallbackFunc != nullptr)
-		_onRightHoldTurnCallbackFunc();
-
-	if (WasLeftHoldTurn() && _onLeftHoldTurnCallbackFunc != nullptr)
-		_onLeftHoldTurnCallbackFunc();
-
-	if (WasSingleClicked() && _onClickCallbackFunc != nullptr)
-		_onClickCallbackFunc();
-
-	if (WasDoubleClicked() && _onDoubleClickCallbackFunc != nullptr)
-		_onDoubleClickCallbackFunc();
-
-	if (WasHolded() && _onPressStartCallbackFunc != nullptr)
-	{
-		_wasHoldStarted = true;
-		_onPressStartCallbackFunc();
-	}
-
-	if (_wasHoldStarted && !_wasButtonPressed && _onPressStopCallbackFunc != nullptr)
-	{
-		_wasHoldStarted = false;
-		_onPressStopCallbackFunc();
-	}
+	if (_broSequenceCombiner.IsCompleted())
+		RaiseTwisterEvents(isButtonPressed);
+	else
+		RaiseButtonsEvents();
 }

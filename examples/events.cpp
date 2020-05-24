@@ -47,8 +47,8 @@ void setup()
     _encoder.AttachOnLeftTurn(&OnLeftTurnHandler);
     _encoder.AttachOnRightTurn(&OnRightTurnHandler);
     _encoder.AttachOnDoubleClick(&OnDoubleClickHandler);
-    _encoder.AttachOnPressStart(&OnPressStartHandler);
-    _encoder.AttachOnPressStop(&OnPressStopHandler);
+    _encoder.AttachOnLongPressStart(&OnPressStartHandler);
+    _encoder.AttachOnLongPressStop(&OnPressStopHandler);
 }
 
 void loop()

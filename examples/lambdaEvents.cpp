@@ -18,8 +18,8 @@ void setup()
     _encoder.AttachOnLeftTurn([]() { Serial.println("Left Turn"); });
     _encoder.AttachOnRightTurn([]() { Serial.println("Right Turn"); });
     _encoder.AttachOnDoubleClick([]() { Serial.println("Double Click"); });
-    _encoder.AttachOnPressStart([]() { Serial.println("Press Start"); });
-    _encoder.AttachOnPressStop([]() { Serial.println("Press Stop"); });
+    _encoder.AttachOnLongPressStart([]() { Serial.println("Press Start"); });
+    _encoder.AttachOnLongPressStop([]() { Serial.println("Press Stop"); });
 }
 
 void loop()
