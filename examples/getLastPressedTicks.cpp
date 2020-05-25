@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include "OneButton.h"
 #include "BroRotaryEncoder.h"
 
 #define PIN_EncoderDt 2
