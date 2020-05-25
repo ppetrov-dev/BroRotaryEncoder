@@ -12,6 +12,7 @@ void setup()
     Serial.begin(9600);
     Serial.println("Serial OK");
 
+    _encoder.Init();
     _encoder.AttachOnClick([]() { Serial.println("Click"); });
     _encoder.AttachOnLeftHoldTurn([]() { Serial.println("Left Hold Turn"); });
     _encoder.AttachOnRightHoldTurn([]() { Serial.println("Right Hold Turn"); });

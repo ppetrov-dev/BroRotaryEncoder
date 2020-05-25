@@ -15,13 +15,17 @@ void OnDoubleClickHandler()
 {
     Serial.println("Double Click);
 }
-void OnLeftHoldTurnHandler()
-{
-    Serial.println("Left Hold Turn");
-}
 void OnLeftTurnHandler()
 {
     Serial.println("Left Turn");
+}
+void OnRightTurnHandler()
+{
+    Serial.println("Right Turn");
+}
+void OnLeftHoldTurnHandler()
+{
+    Serial.println("Left Hold Turn");
 }
 void OnRightHoldTurnHandler()
 {
@@ -41,6 +45,7 @@ void setup()
     Serial.begin(9600);
     Serial.println("Serial OK");
 
+    _encoder.Init();
     _encoder.AttachOnClick(&OnClickHandler);
     _encoder.AttachOnLeftHoldTurn(&OnLeftHoldTurnHandler);
     _encoder.AttachOnRightHoldTurn(&OnRightHoldTurnHandler);
