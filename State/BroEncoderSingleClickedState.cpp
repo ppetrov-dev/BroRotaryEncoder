@@ -1,6 +1,5 @@
 #include "State/BroEncoderSingleClickedState.h"
 #include "State/BroEncoderNormalState.h"
-#include "BroRotaryEncoder.h"
 
 void BroEncoderSingleClickedState::RaiseEventIfNeeded()
 {

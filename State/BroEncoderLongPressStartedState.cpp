@@ -1,6 +1,5 @@
 #include "State/BroEncoderLongPressStartedState.h"
 #include "State/BroEncoderLongPressStoppedState.h"
-#include "BroRotaryEncoder.h"
 
 void BroEncoderLongPressStartedState::Tick(const bool &isButtonPressed, const unsigned long &milliseconds)
 {
