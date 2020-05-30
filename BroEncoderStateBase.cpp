@@ -1,6 +1,5 @@
-#include "State/BroEncoderStateBase.h"
-#include "State/BroEncoderNormalState.h"
-#include "State/BroEncoderUnreleasedState.h"
+#include "BroEncoderStateBase.h"
+#include "BroEncoderButtonStates.h"
 #include "BroRotaryEncoder.h"
 
 void BroEncoderStateBase::Tick(const bool &isButtonPressed, const unsigned long &milliseconds)

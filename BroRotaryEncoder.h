@@ -2,7 +2,7 @@
 #define broRotaryEncoderH
 
 #include "BroSimpleRotaryEncoder.h"
-#include "State/BroEncoderStateBase.h"
+#include "BroEncoderStateBase.h"
 
 class BroRotaryEncoder : public BroSimpleRotaryEncoder
 {

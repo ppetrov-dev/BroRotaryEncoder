@@ -1,5 +1,5 @@
 #include "BroRotaryEncoder.h"
-#include "State/BroEncoderNormalState.h"
+#include "BroEncoderButtonStates.h"
 
 BroRotaryEncoder::BroRotaryEncoder(byte pinClk, byte pinDt, byte pinSw, bool isActiveLow, bool isPullupActive)
 	: BroSimpleRotaryEncoder(pinClk, pinDt), _pinSw(pinSw), _isPullupActive(isPullupActive)
